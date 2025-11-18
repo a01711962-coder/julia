@@ -1,108 +1,126 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <title>VR Scene</title>
-    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/supermedium/superframe@master/components/postprocessing/dist/aframe-postprocessing-component.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@latest/dist/aframe-extras.min.js"></script>
-    <script src="https://unpkg.com/aframe-effects/dist/aframe-effects.min.js"></script>
+<head>
+  <meta charset="utf-8">
+  <title>Step 11</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- A-Frame core -->
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <!-- movement-controls + laser-controls -->
+  <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@latest/dist/aframe-extras.min.js"></script>
+  <style>body{margin:0;background:#000}</style>
+</head>
+<body>
+  <a-scene
+    renderer="antialias: true; physicallyCorrectLights: true; colorManagement: true; toneMapping: ACESFilmicToneMapping"
+    shadow="type: pcfsoft">
 
-    <script>
-      AFRAME.registerComponent('teleport-on-click', {
-        init: function () {
-          this.el.addEventListener('click', () => {
-            const rig = document.querySelector('#rig');
-            const point = document.querySelector('#teleport-point').object3D.position;
-            if (rig) {
-              rig.object3D.position.copy(point);
-            }
-          });
-        }
-      });
-    </script>
-  </head>
+    <!-- Lights -->
+    <a-entity light="type: ambient; intensity: 0.45"></a-entity>
+    <a-entity id="sun" light="type: directional; intensity: 1.25; castShadow: true"
+              position="6 10 6" rotation="-45 30 0"></a-entity>
 
-  <body>
-    <a-scene shadow="type: pcfsoft" postprocessing="bloom: true; ssao: true">
-
-      <!-- Assets -->
-      <a-assets>
-        <a-asset-item id="model" src="model.glb"></a-asset-item>
-      </a-assets>
-
-      <!-- Cámara -->
-      <a-entity id="rig" movement-controls="controls: gamepad,keyboard; speed: 0.2" position="0 1.6 0">
-        <a-entity id="camera" camera look-controls wasd-controls></a-entity>
-        <a-entity laser-controls="hand: left" raycaster="objects: .interactable"></a-entity>
-        <a-entity laser-controls="hand: right" raycaster="objects: .interactable"></a-entity>
+    <!-- RIG: start position -->
+    <a-entity id="rig" position="0 1.6 -2" movement-controls="controls: gamepad,keyboard; speed: 0.22">
+      <a-entity id="camera" camera look-controls>
+        <!-- HUD TIMER (arriba y centrado) -->
+        <a-entity id="hud" position="0 0.35 -1.2">
+          <a-plane width="0.6" height="0.22" color="#000000" opacity="0.28"></a-plane>
+          <a-text id="timerText" value="00:00" align="center" width="1.8" position="0 0 0.01" color="#FFFFFF"></a-text>
+        </a-entity>
       </a-entity>
+      <a-entity laser-controls="hand: left"></a-entity>
+      <a-entity laser-controls="hand: right"></a-entity>
+    </a-entity>
 
-      <!-- Cursor -->
-      <a-entity 
-        cursor="rayOrigin: mouse"
-        raycaster="objects: .interactable"
-        position="0 0 -1"
-        geometry="primitive: ring; radiusInner: 0.01; radiusOuter: 0.015"
-        material="color: white; shader: flat">
-      </a-entity>
+    <!-- Optional mouse cursor -->
+    <a-entity cursor="rayOrigin: mouse"></a-entity>
 
-      <!-- Luces -->
-      <a-light type="directional" color="#fff" intensity="0.4" position="2 4 4" castShadow="true"></a-light>
-      <a-light type="ambient" intensity="0.4"></a-light>
+    <!-- FLOOR-->
+    <a-plane id="floor" rotation="-90 0 0" width="20" height="80" position="0 0 -40"
+             material="color: #ffffff; metalness: 0; roughness: 1"
+             shadow="receive: true"></a-plane>
 
-      <!-- Objetos -->
-      <a-entity gltf-model="#model" position="0 .5 -3" scale="1 1 1" shadow="cast: true" shadow="receive: true"></a-entity>
+    <!-- Corridor walls -->
+    <a-box position="-2.5 1.2 -40" depth="80" height="2.4" width="0.25" color="#456723" shadow="cast: true"></a-box>
+    <a-box position=" 2.5 1.2 -40" depth="80" height="2.4" width="0.25" color="#887564" shadow="cast: true"></a-box>
+    <a-box position="0 1.2 0" depth="0.25" height="2.4" width="5" color="#998899" shadow="cast: true"></a-box>
 
-      <a-box position="0 .5 -3" rotation="0 45 0" color="#4CF3D9" shadow="cast: true"></a-box>
+    <!-- START text -->
+    <a-text value="HELLO" position="0 1.2 -3" align="center" width="6" color="#784561"
+            animation="property: position; to: 0 1.3 -3; dir: alternate; dur: 1400; loop: true; easing: easeInOutSine"></a-text>
 
-      <a-plane rotation="-90 0 0" width="10" height="10" color="#7BC8A4" shadow="receive: true"></a-plane>
+    <!-- Props -->
+    <a-sphere position="-1 0.8 -10" radius="0.4"
+              material="metalness: 1; roughness: 0.08; color: #888"
+              shadow="cast: true"></a-sphere>
 
-      <a-sky src="360image.jpg" rotation="0 -90 0"></a-sky>
+    <a-box position="1 0.9 -20" width="0.9" height="0.9" depth="0.9"
+           material="color: #aaccff; opacity: 0.35; transparent: true; metalness: 0.15; roughness: 0.05"
+           shadow="cast: true"></a-box>
 
-      <!-- Caja que revela imagen -->
-      <a-box position="-4 1.5 -3" color="#FFFFFF" depth="0.2" height="1" width="1.5"
-             class="interactable"
-             onclick="const i=document.getElementById('revealed-image');i.setAttribute('visible',!i.getAttribute('visible'))"
-             material="color: #FF00FF; metalness: 0; roughness: 0.3"
-             shadow="cast: true">
-      </a-box>
+    <a-cone position="0 1.0 -30" radius-bottom="0.6" height="1.2"
+            material="color: #ff4fd7; metalness: 0.0; roughness: 0.25"
+            shadow="cast: true"></a-cone>
 
-      <a-image id="revealed-image" src="image1.jpg" position="-4 2.5 -3" width="3" height="2" visible="false"></a-image>
+    <a-box position="0 0.75 -45" width="1.2" height="1.5" depth="0.6" color="874590" shadow="cast: true"></a-box>
 
-      <!-- Caja que cambia de color -->
-      <a-box class="interactable" position="3 1 -3" color="#4CF3D9"
-             onclick="this.setAttribute('color', '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0'))"
-             shadow="cast: true">
-      </a-box>
+    <a-plane position="0 1.5 -78" rotation="0 0 0" width="3" height="2"
+             material="color: #5ad08f" shadow="cast: true"></a-plane>
+    <a-text value="EXIT" position="0 1.5 -77.98" align="center" width="6" color="#667832"></a-text>
 
-      <!-- Caja para teletransporte -->
-      <a-box class="interactable" position="-3 1 -3" color="#FFC107"
-             teleport-on-click
-             shadow="cast: true">
-      </a-box>
+  </a-scene>
 
-      <a-entity id="teleport-point" position="5 1.6 0"></a-entity>
+  <script>
+    // Sky + reflections (PMREM)
+    const sceneEl = document.querySelector('a-scene');
 
-      <!-- Animación -->
-      <a-box position="0 2 -5" rotation="0 45 45" scale="2 2 2"
-             animation="property: object3D.position.y; to: 2.2; dir: alternate; dur: 2000; loop: true"
-             shadow="cast: true">
-      </a-box>
+    function makeEquirectGradient(w=2048,h=1024){
+      const c = document.createElement('canvas'); c.width=w; c.height=h;
+      const g = c.getContext('2d');
+      const grad = g.createLinearGradient(0,0,0,h);
+      grad.addColorStop(0.00, '#9fc9ff');
+      grad.addColorStop(0.65, '#cfe6ff');
+      grad.addColorStop(1.00, '#d8dbe0');
+      g.fillStyle = grad; g.fillRect(0,0,w,h);
+      return new THREE.CanvasTexture(c);
+    }
 
-      <!-- Audio -->
-      <a-sphere class="interactable" position="4 1.5 -3" radius="0.5" color="#3399FF"
-                onclick="document.querySelector('#audio').components.sound.playSound()"
-                material="metalness: 1; roughness: 0; color: #888"
-                shadow="cast: true">
-      </a-sphere>
-      <a-sound id="audio" src="sound.mp3" autoplay="false"></a-sound>
+    sceneEl.addEventListener('loaded', () => {
+      const renderer = sceneEl.renderer; if (!renderer) return;
+      const pmrem = new THREE.PMREMGenerator(renderer);
+      const tex = makeEquirectGradient();
+      if (THREE.SRGBColorSpace) tex.colorSpace = THREE.SRGBColorSpace;
+      tex.mapping = THREE.EquirectangularReflectionMapping;
+      sceneEl.object3D.background = tex;
+      const envRT = pmrem.fromEquirectangular(tex);
+      sceneEl.object3D.environment = envRT.texture;
 
-      <a-sphere radius="0.5" position="-2 1 -3"
-        material="color: #AAF; opacity: 0.3; transparent: true; roughness: 0.1; metalness: 0.5"
-        shadow="cast: true">
-      </a-sphere>
+      // Soft shadows
+      const sun = document.getElementById('sun').getObject3D('light');
+      if (sun && sun.shadow) {
+        sun.shadow.mapSize.set(1024,1024);
+        sun.shadow.radius = 3;
+        sun.shadow.bias = -0.0001;
+        sun.shadow.normalBias = 0.02;
+        const cam = sun.shadow.camera;
+        cam.near = 0.5; cam.far = 120;
+        cam.left = -20; cam.right = 20; cam.top = 20; cam.bottom = -20;
+        cam.updateProjectionMatrix();
+      }
 
-    </a-scene>
-  </body>
+      // Timer HUD
+      const t0 = performance.now();
+      const timerText = document.getElementById('timerText');
+      function updateTimer(){
+        const dt = Math.floor((performance.now() - t0)/1000);
+        const mm = String(Math.floor(dt/60)).padStart(2,'0');
+        const ss = String(dt%60).padStart(2,'0');
+        timerText.setAttribute('value', `${mm}:${ss}`);
+        requestAnimationFrame(updateTimer);
+      }
+      updateTimer();
+    });
+  </script>
+</body>
 </html>
